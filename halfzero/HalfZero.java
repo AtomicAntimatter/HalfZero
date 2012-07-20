@@ -18,9 +18,10 @@ public class HalfZero
 	private static enum State {INTRO, MAIN_MENU, GAME};
 	private static State state = State.GAME;
 	private static Map gameMap;
+	private static final int MAP_LENGTH = 10, MAP_WIDTH = 25;
 	
 	@SuppressWarnings("CallToThreadDumpStack")
-	public static void main(String[] argv) 
+	public static void main(String argv[]) 
 	{
 		try
 		{
@@ -56,17 +57,8 @@ public class HalfZero
 		GL11.glOrtho(0, Display.getWidth(), 0, Display.getHeight(), 1, -1);
 		GL11.glMatrixMode(GL11.GL_MODELVIEW);
 		
-		gameMap = new Map(15,15);
-		for(int y = 1; y < 16; y++)
-		{
-			for(int x = 1; x < 16; x++)
-			{
-				int tileX = ((x-y)*38)+Display.getWidth()/2;
-				int tileY = (x+y)*19+Display.getHeight()/2-285;
-				gameMap.addTile(tileX, tileY, 76, 38);
-			}
-		}
-		
+		gameMap = new Map(MAP_LENGTH, MAP_WIDTH);
+			
 		getDelta();
 	}
 	
@@ -128,13 +120,7 @@ public class HalfZero
 		GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
 		GL11.glColor3f(0.5f, 0.5f, 1.0f);
 
-		for(int i = 0; i < 14; i++)
-		{
-			for(int j = 0; j < 14; j++)
-			{
-				gameMap.getTile(i, j).renderTile();
-			}
-		}
+		gameMap.renderMap();
 		
 		GL11.glColor3f(0.5f, 0.5f, 1.0f);
 		/* Draws a crosshair for reference*/
@@ -152,6 +138,8 @@ public class HalfZero
 			GL11.glEnd();
 		GL11.glPopMatrix();		
 		/**/ 
+		
+		GL11.glFlush();
 	}	
 	
 	private static void cleanup()
