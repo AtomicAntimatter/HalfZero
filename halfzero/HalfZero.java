@@ -17,6 +17,7 @@ public class HalfZero
 	
 	private static enum State {INTRO, MAIN_MENU, GAME};
 	private static State state = State.GAME;
+	private static Map gameMap;
 	
 	@SuppressWarnings("CallToThreadDumpStack")
 	public static void main(String[] argv) 
@@ -54,6 +55,17 @@ public class HalfZero
 		GL11.glLoadIdentity();
 		GL11.glOrtho(0, Display.getWidth(), 0, Display.getHeight(), 1, -1);
 		GL11.glMatrixMode(GL11.GL_MODELVIEW);
+		
+		gameMap = new Map(15,15);
+		for(int y = 1; y < 16; y++)
+		{
+			for(int x = 1; x < 16; x++)
+			{
+				int tileX = ((x-y)*38)+Display.getWidth()/2;
+				int tileY = (x+y)*19+Display.getHeight()/2-285;
+				gameMap.addTile(tileX, tileY, 76, 38);
+			}
+		}
 		
 		getDelta();
 	}
@@ -116,21 +128,16 @@ public class HalfZero
 		GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
 		GL11.glColor3f(0.5f, 0.5f, 1.0f);
 
-		for(int y = 1; y < 10; y++)
+		for(int i = 0; i < 14; i++)
 		{
-			for(int x = 1; x < 10; x++)
+			for(int j = 0; j < 14; j++)
 			{
-				int drawX = ((x-y)*38)+Display.getWidth()/2;
-				int drawY = (x+y)*19+Display.getHeight()/2-190;
-				GL11.glPushMatrix();
-					GL11.glBegin(GL11.GL_POINTS);
-					GL11.glVertex2i(drawX, drawY);
-					GL11.glEnd();
-				GL11.glPopMatrix();
+				gameMap.getTile(i, j).renderTile();
 			}
 		}
 		
-		/* Draws a crosshair for reference
+		GL11.glColor3f(0.5f, 0.5f, 1.0f);
+		/* Draws a crosshair for reference*/
 		GL11.glPushMatrix();
 			GL11.glBegin(GL11.GL_LINES);
 			GL11.glVertex2i(0, Display.getHeight()/2);
@@ -144,7 +151,7 @@ public class HalfZero
 			GL11.glVertex2i(Display.getWidth()/2, Display.getHeight());
 			GL11.glEnd();
 		GL11.glPopMatrix();		
-		*/ 
+		/**/ 
 	}	
 	
 	private static void cleanup()
