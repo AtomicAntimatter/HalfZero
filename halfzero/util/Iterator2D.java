@@ -9,7 +9,9 @@ package halfzero.util;
  * @author harrison
  */
 public interface Iterator2D <E> {
-    E val();
+    E get();
+    
+    void set(final E _val);
     
     E next();
     E prev();
