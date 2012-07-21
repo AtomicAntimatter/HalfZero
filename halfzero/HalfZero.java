@@ -18,7 +18,7 @@ public class HalfZero
 	private static enum State {INTRO, MAIN_MENU, GAME};
 	private static State state = State.GAME;
 	private static Map gameMap;
-	private static final int MAP_LENGTH = 10, MAP_WIDTH = 25;
+	private static final int MAP_LENGTH = 500, MAP_WIDTH = 500;
 	
 	@SuppressWarnings("CallToThreadDumpStack")
 	public static void main(String argv[]) 
@@ -57,8 +57,7 @@ public class HalfZero
 		GL11.glOrtho(0, Display.getWidth(), 0, Display.getHeight(), 1, -1);
 		GL11.glMatrixMode(GL11.GL_MODELVIEW);
 		
-		gameMap = new Map(MAP_LENGTH, MAP_WIDTH);
-			
+		gameMap = new Map(MAP_LENGTH, MAP_WIDTH);	
 		getDelta();
 	}
 	
@@ -104,6 +103,12 @@ public class HalfZero
 				finished = true;
 			}
 		}
+		
+		gameMap.moveMap(
+				(Keyboard.isKeyDown(Keyboard.KEY_LEFT)?delta:0)
+				+ (Keyboard.isKeyDown(Keyboard.KEY_RIGHT)?-delta:0),
+				(Keyboard.isKeyDown(Keyboard.KEY_UP)?-delta:0) 
+				+ (Keyboard.isKeyDown(Keyboard.KEY_DOWN)?delta:0));
 	}
 	
 	private static int getDelta() 
@@ -118,26 +123,9 @@ public class HalfZero
 	private static void gameRender() 
 	{
 		GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
-		GL11.glColor3f(0.5f, 0.5f, 1.0f);
-
+		
 		gameMap.renderMap();
-		
-		GL11.glColor3f(0.5f, 0.5f, 1.0f);
-		/* Draws a crosshair for reference*/
-		GL11.glPushMatrix();
-			GL11.glBegin(GL11.GL_LINES);
-			GL11.glVertex2i(0, Display.getHeight()/2);
-			GL11.glVertex2i(Display.getWidth(), Display.getHeight()/2);
-			GL11.glEnd();
-		GL11.glPopMatrix();
-		
-		GL11.glPushMatrix();
-			GL11.glBegin(GL11.GL_LINES);
-			GL11.glVertex2i(Display.getWidth()/2, 0);
-			GL11.glVertex2i(Display.getWidth()/2, Display.getHeight());
-			GL11.glEnd();
-		GL11.glPopMatrix();		
-		/**/ 
+		gameMap.renderCrosshair();
 		
 		GL11.glFlush();
 	}	
