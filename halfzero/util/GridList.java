@@ -20,6 +20,14 @@ public class GridList<E> implements Collection<E> {
         private E item;
         private Entry u, d, l, r;
         
+        public final int x, y;
+        
+        /*package*/ Entry(int _x, int _y, E _item) {
+            item = _item;
+            u = d = l = r = null;
+            x = _x; y = _y;
+        }
+        
         public E getValue() {
             return item;
         }
@@ -129,13 +137,14 @@ public class GridList<E> implements Collection<E> {
     //Utility methods
     
     private void addCol() {  //O(h^2+wh)
-        Entry entry = new Entry(), oldEntry = null;
+        Entry entry = new Entry(w,0,null), 
+              oldEntry = null;
         entry.l = get(w-1, 0);
         c.add(entry);
         
         for(int j = 1; j < h; j++) {
             oldEntry = entry;
-            entry = new Entry();
+            entry = new Entry(w,j,null);
             entry.u = oldEntry;
             oldEntry.d = entry;
             entry.l = get(w-1, j);
@@ -145,13 +154,14 @@ public class GridList<E> implements Collection<E> {
     }
     
     private void addRow() { //O(w^2+wh)
-        Entry entry = new Entry(), oldEntry = null;
+        Entry entry = new Entry(0,h,null), 
+              oldEntry = null;
         entry.u = get(0, h-1);
         r.add(entry);
         
         for(int i = 1; i < w; i++) {
             oldEntry = entry;
-            entry = new Entry();
+            entry = new Entry(i,h,null);
             entry.l = oldEntry;
             oldEntry.r = entry;
             entry.u = get(i, h-1);

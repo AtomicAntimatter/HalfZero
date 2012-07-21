@@ -1,26 +1,43 @@
 package halfzero;
 
+import java.util.Iterator;
+import halfzero.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.Sys;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.Display;
-import org.lwjgl.opengl.GL11;
+import org.lwjgl.util.Color;
+
+import static org.lwjgl.opengl.GL11.*;
+import static halfzero.util.Functions.*;
 
 public class HalfZero 
 {
 	private static long lastFrame;
 	private static final String GAME_TITLE = "HalfZero";
-	private static final int FRAMERATE = 60;
+	private static final int FRAMERATE = 60, WIDTH=10, HEIGHT=10;
 	private static boolean finished;
 	
 	private static enum State {INTRO, MAIN_MENU, GAME};
 	private static State state = State.GAME;
 	
+        private static GridList<Tile> tiles;
+        
 	@SuppressWarnings("CallToThreadDumpStack")
 	public static void main(String[] argv) 
 	{
+                tiles = new GridList<Tile>(WIDTH, HEIGHT);
+                
+                Iterator<GridList<Tile>.Entry> i = tiles.entryIterator();
+                
+                while(i.hasNext()) {
+                    GridList<Tile>.Entry e = i.next();
+                    Tile t = new Tile();
+                    t.color = new Color(randInt(255), randInt(255), randInt(255));
+                }
+                
 		try
 		{
 			init();
@@ -50,10 +67,10 @@ public class HalfZero
 			Logger.getLogger(HalfZero.class.getName()).log(Level.SEVERE, null, ex);
 		}
 		
-		GL11.glMatrixMode(GL11.GL_PROJECTION);
-		GL11.glLoadIdentity();
-		GL11.glOrtho(0, Display.getWidth(), 0, Display.getHeight(), 1, -1);
-		GL11.glMatrixMode(GL11.GL_MODELVIEW);
+		glMatrixMode(GL_PROJECTION);
+		glLoadIdentity();
+		glOrtho(0, Display.getWidth(), 0, Display.getHeight(), 1, -1);
+		glMatrixMode(GL_MODELVIEW);
 		
 		getDelta();
 	}
@@ -113,38 +130,11 @@ public class HalfZero
 
 	private static void gameRender() 
 	{
-		GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
-		GL11.glColor3f(0.5f, 0.5f, 1.0f);
-
-		for(int y = 1; y < 10; y++)
-		{
-			for(int x = 1; x < 10; x++)
-			{
-				int drawX = ((x-y)*38)+Display.getWidth()/2;
-				int drawY = (x+y)*19+Display.getHeight()/2-190;
-				GL11.glPushMatrix();
-					GL11.glBegin(GL11.GL_POINTS);
-					GL11.glVertex2i(drawX, drawY);
-					GL11.glEnd();
-				GL11.glPopMatrix();
-			}
-		}
-		
-		/* Draws a crosshair for reference
-		GL11.glPushMatrix();
-			GL11.glBegin(GL11.GL_LINES);
-			GL11.glVertex2i(0, Display.getHeight()/2);
-			GL11.glVertex2i(Display.getWidth(), Display.getHeight()/2);
-			GL11.glEnd();
-		GL11.glPopMatrix();
-		
-		GL11.glPushMatrix();
-			GL11.glBegin(GL11.GL_LINES);
-			GL11.glVertex2i(Display.getWidth()/2, 0);
-			GL11.glVertex2i(Display.getWidth()/2, Display.getHeight());
-			GL11.glEnd();
-		GL11.glPopMatrix();		
-		*/ 
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glColor3f(0.5f, 0.5f, 1.0f);
+                
+                
+                
 	}	
 	
 	private static void cleanup()
