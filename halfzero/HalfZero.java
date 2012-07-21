@@ -18,7 +18,7 @@ public class HalfZero
 	private static enum State {INTRO, MAIN_MENU, GAME};
 	private static State state = State.GAME;
 	private static Map gameMap;
-	private static final int MAP_LENGTH = 500, MAP_WIDTH = 500;
+	private static final int MAP_LENGTH = 1000, MAP_WIDTH = 1000;
 	
 	@SuppressWarnings("CallToThreadDumpStack")
 	public static void main(String argv[]) 
