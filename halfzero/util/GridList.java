@@ -240,10 +240,10 @@ public class GridList<E> implements Collection<E> {
         
     }
     
-    public Iterator<Entry> entryIterator() {
+    public Iterator<GridList<E>.Entry> entryIterator() {
         return new EIterator();
     }
-    public Iterator<Entry> entryIterator(IterationOrder order) {
+    public Iterator<GridList<E>.Entry> entryIterator(IterationOrder order) {
         return new EIterator(order);
     }
     
