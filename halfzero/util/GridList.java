@@ -17,8 +17,8 @@ import java.util.NoSuchElementException;
 public class GridList<E> implements Collection<E> {
 
     public class Entry {
-        private E item;
-        private Entry u, d, l, r;
+        E item;
+        Entry u, d, l, r;
         
         public final int x, y;
         
@@ -120,17 +120,21 @@ public class GridList<E> implements Collection<E> {
     List<Entry> r, c;
     
     public GridList() { //O(1)
-        this(0,0);
+        this(1,1);
     }
     
     public GridList(final int _w, final int _h) { //O(wh^2+w^2h)
-        this.w = this.h = 0;
+        this.w = this.h = 1;
         r = new LinkedList<Entry>();
         c = new LinkedList<Entry>();
         
-        for(int i = 0; i < _w; i++)
+        head = new Entry(0,0,null);
+        r.add(head);
+        c.add(head);
+        
+        for(int i = 1; i < _w; i++)
             addCol();
-        for(int j = 0; j < _h; j++)
+        for(int j = 1; j < _h; j++)
             addRow();
     }
     
@@ -138,8 +142,10 @@ public class GridList<E> implements Collection<E> {
     
     private void addCol() {  //O(h^2+wh)
         Entry entry = new Entry(w,0,null), 
-              oldEntry = null;
-        entry.l = get(w-1, 0);
+              oldEntry = null,
+              lastEntry = get(w-1,0);
+        entry.l = lastEntry;
+        lastEntry.r = entry;
         c.add(entry);
         
         for(int j = 1; j < h; j++) {
@@ -155,8 +161,10 @@ public class GridList<E> implements Collection<E> {
     
     private void addRow() { //O(w^2+wh)
         Entry entry = new Entry(0,h,null), 
-              oldEntry = null;
-        entry.u = get(0, h-1);
+              oldEntry = null,
+              lastEntry = get(0, h-1);
+        entry.u = lastEntry;
+        lastEntry.d = entry;
         r.add(entry);
         
         for(int i = 1; i < w; i++) {
@@ -180,8 +188,8 @@ public class GridList<E> implements Collection<E> {
         
         Entry curr = head;
         
-        for (int i = 0; i < 1; i++)
-            curr = curr.l;
+        for (int i = 0; i < x; i++)
+            curr = curr.r;
         for (int j = 0; j < y; j++)
             curr = curr.d;
         

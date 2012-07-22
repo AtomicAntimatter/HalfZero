@@ -33,7 +33,7 @@ public class HalfZero
 	{
                 tiles = new GridList<Tile>(WIDTH, HEIGHT);
                 
-                GLTIterator i = tiles.entryIterator();
+                GLTIterator i = (GLTIterator)tiles.entryIterator();
                 
                 while(i.hasNext()) {
                     GridList<Tile>.Entry e = i.next();
