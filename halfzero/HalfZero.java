@@ -15,9 +15,7 @@ import static org.lwjgl.opengl.GL11.*;
 import static halfzero.util.Functions.*;
 
 public class HalfZero 
-{
-        /*typedef*/ private static interface GLTIterator extends Iterator<GridList<Tile>.Entry> {};
-    
+{   
 	private static long lastFrame;
 	private static final String GAME_TITLE = "HalfZero";
 	private static final int FRAMERATE = 60, WIDTH=10, HEIGHT=10;
@@ -33,7 +31,7 @@ public class HalfZero
 	{
                 tiles = new GridList<Tile>(WIDTH, HEIGHT);
                 
-                GLTIterator i = (GLTIterator)tiles.entryIterator();
+                Iterator<GridList<Tile>.Entry> i = tiles.entryIterator();
                 
                 while(i.hasNext()) {
                     GridList<Tile>.Entry e = i.next();

@@ -21,6 +21,22 @@ public class GridList<E> implements Collection<E> {
         Entry u, d, l, r;
         
         public final int x, y;
+
+        @Override
+        public int hashCode() {
+            int hash = 7;
+            hash = 37 * hash + (this.item != null ? this.item.hashCode() : 0);
+            hash = 37 * hash + this.x;
+            hash = 37 * hash + this.y;
+            return hash;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if(obj.getClass().equals(getClass()))
+                return obj.hashCode() == hashCode();
+            else return false;
+        }
         
         /*package*/ Entry(int _x, int _y, E _item) {
             item = _item;
@@ -153,7 +169,9 @@ public class GridList<E> implements Collection<E> {
             entry = new Entry(w,j,null);
             entry.u = oldEntry;
             oldEntry.d = entry;
-            entry.l = get(w-1, j);
+            lastEntry = get(w-1, j);
+            entry.l = lastEntry;
+            lastEntry.r = entry;
         }
         
         w++;
@@ -172,7 +190,9 @@ public class GridList<E> implements Collection<E> {
             entry = new Entry(i,h,null);
             entry.l = oldEntry;
             oldEntry.r = entry;
-            entry.u = get(i, h-1);
+            lastEntry = get(i, h-1);
+            entry.u = lastEntry;
+            lastEntry.d = entry;
         }
         
         h++;
