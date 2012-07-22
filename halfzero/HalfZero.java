@@ -18,7 +18,7 @@ public class HalfZero
 	private static enum State {INTRO, MAIN_MENU, GAME};
 	private static State state = State.GAME;
 	private static Map gameMap;
-	private static final int MAP_LENGTH = 1000, MAP_WIDTH = 1000;
+	private static final int MAP_LENGTH = 50, MAP_WIDTH = 50;
 	
 	@SuppressWarnings("CallToThreadDumpStack")
 	public static void main(String argv[]) 
@@ -94,6 +94,14 @@ public class HalfZero
 		if(Keyboard.isKeyDown(Keyboard.KEY_ESCAPE))
 		{
 			finished = true;
+		}
+		else if(Keyboard.isKeyDown(Keyboard.KEY_ADD))
+		{
+			gameMap.zoomMap(true, delta);
+		}
+		else if(Keyboard.isKeyDown(Keyboard.KEY_SUBTRACT))
+		{
+			gameMap.zoomMap(false, delta);
 		}
 		
 		while(Keyboard.next())
