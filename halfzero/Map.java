@@ -1,8 +1,5 @@
 package halfzero;
 
-import java.awt.Point;
-import java.awt.geom.Line2D;
-import java.awt.geom.Rectangle2D;
 import java.util.HashMap;
 import java.util.Iterator;
 import org.lwjgl.opengl.Display;
@@ -13,10 +10,8 @@ public class Map
 	private final int TILE_HEIGHT = 38, TILE_WIDTH = 76;
 	private final int MAP_LENGTH, MAP_WIDTH; 
 	private int offsetX = 0, offsetY = 0;
-	//private java.util.Map<Line2D.Float[], java.util.Map<int[], Tile>> tileMaps = new HashMap();
-	//private final Rectangle2D screenRect = new Rectangle2D.Float(0,0,Display.getWidth(),Display.getHeight());
 	private float zoomFactor = 1; 
-	private final int centerX = Display.getWidth()/2, centerY = Display.getHeight()/2;
+	private float centerX, centerY;
 	private java.util.Map<int[], Tile> tileMap = new HashMap();
 	
 	public Map(final int _MAP_LENGTH, final int _MAP_WIDTH)
@@ -24,39 +19,19 @@ public class Map
 		MAP_LENGTH = _MAP_LENGTH;
 		MAP_WIDTH = _MAP_WIDTH;	
 		
-		//HashMap<int[], Tile> tileColumn = new HashMap();
+		centerX = Display.getWidth()/2 - TILE_WIDTH*(MAP_LENGTH+MAP_WIDTH)/4;
+		centerY = Display.getHeight()/2 - TILE_HEIGHT/2 - TILE_HEIGHT*(MAP_LENGTH - MAP_WIDTH)/4;
 		
 		for(int i = 0; i < MAP_WIDTH; i++)
-		{
-			//Point tC = new Point(0,0), rC = tC, lC = tC, bC = tC;
-			//Line2D.Float l1, l2;
-			
+		{	
 			for(int j = MAP_LENGTH; j > 0; j--)
 			{
-				int x = ((j+i)*TILE_WIDTH/2) - TILE_WIDTH*(MAP_LENGTH+MAP_WIDTH)/4;
-				int y = ((j-i)*TILE_HEIGHT/2) - TILE_HEIGHT/2 - TILE_HEIGHT*(MAP_LENGTH - MAP_WIDTH)/4;
-				
-				/*
-				if(j == MAP_LENGTH)
-				{
-					tC = new Point(x, y + TILE_HEIGHT/2);
-					rC = new Point(x + TILE_WIDTH/2, y);
-				}
-				if(j == 1)
-				{
-					lC = new Point(x - TILE_WIDTH/2, y);
-					bC = new Point(x, y - TILE_HEIGHT/2);		
-				}*/
-				
+				int x = ((j+i)*TILE_WIDTH/2);
+				int y = ((j-i)*TILE_HEIGHT/2);
+							
 				float[] colors = {(float)Math.random(), (float)Math.random(), (float)Math.random()};
-				//tileColumn.put(new int[]{x, y}, new Tile(x, y, TILE_WIDTH, TILE_HEIGHT, colors));
 				tileMap.put(new int[]{x, y}, new Tile(x, y, TILE_WIDTH, TILE_HEIGHT, colors));
 			}
-			
-			//l1 = new Line2D.Float(tC, lC);
-			//l2 = new Line2D.Float(rC, bC);
-			//tileMaps.put(new Line2D.Float[]{l1, l2}, new HashMap(tileColumn)); 
-			//tileColumn.clear();
 		}	
 	}
 	
@@ -70,90 +45,45 @@ public class Map
 		{
 			zoomFactor -= 0.001f*delta;
 		}	
+		centerX = Display.getWidth()/2 - zoomFactor*(TILE_WIDTH*(MAP_LENGTH+MAP_WIDTH)/4 + offsetX);
+		centerY = Display.getHeight()/2 - zoomFactor*(TILE_HEIGHT/2 + TILE_HEIGHT*(MAP_LENGTH - MAP_WIDTH)/4 + offsetY);
 	}
 	
 	public void moveMap(final float moveX, final float moveY)
 	{
 		if((moveX == 0)&&(moveY == 0)) return;
 		
-		GL11.glTranslatef(moveX, moveY, 0);
-		//screenRect.setRect(new Rectangle2D.Float(offsetX, offsetY, Display.getWidth(), Display.getHeight()));
 		offsetX -= moveX;
 		offsetY -= moveY;
+		
+		centerX = Display.getWidth()/2 - zoomFactor*(TILE_WIDTH*(MAP_LENGTH+MAP_WIDTH)/4 + offsetX);
+		centerY = Display.getHeight()/2 - zoomFactor*(TILE_HEIGHT/2 + TILE_HEIGHT*(MAP_LENGTH - MAP_WIDTH)/4 + offsetY);
 	}
 	
 	public void renderMap()
-	{
-		/*
-		Iterator i = tileMaps.entrySet().iterator();
-		while(i.hasNext())
-		{
-			java.util.Map.Entry<Line2D.Float[], HashMap<int[], Tile>> pair1 = (java.util.Map.Entry<Line2D.Float[], HashMap<int[], Tile>>)i.next();
-			if(isBlockOnScreen(pair1.getKey()))
-			{
-				Iterator j = pair1.getValue().entrySet().iterator();
-				while(j.hasNext())
-				{
-					java.util.Map.Entry<int[], Tile> pair2 = (java.util.Map.Entry<int[], Tile>)j.next();
-
-					if(isTileOnScreen(pair2.getKey())) 
-					{
-						pair2.getValue().renderTile();
-					}
-				}
-			}	
-		}*/
-		
+	{		
 		Iterator i = tileMap.entrySet().iterator();
 		while(i.hasNext())
 		{
 			java.util.Map.Entry<int[], Tile> pair = (java.util.Map.Entry<int[], Tile>)i.next();
-			if(isTileOnScreen(pair.getKey()))
-			{
-				pair.getValue().renderTile();
-			}
+			pair.getValue().renderTile();
 		}
 	}
-	
-	/*
-	private boolean isBlockOnScreen(Line2D.Float[] bp)
-	{
-		if(bp[0].intersects(screenRect)||bp[1].intersects(screenRect))
-		{
-			return true;
-		}
-		return false;
-	}*/
-	
-	private boolean isTileOnScreen(int[] tp)
-	{	
-		/*
-		if(((tp[0] - offsetX + zoomOffsetX) < -TILE_WIDTH)
-			||((tp[0] - offsetX + zoomOffsetX) > Display.getWidth()+TILE_WIDTH)
-			||((tp[1] - offsetY + zoomOffsetY) < -TILE_HEIGHT)
-			||((tp[1] - offsetY + zoomOffsetY) > Display.getHeight()+TILE_HEIGHT))
-		{
-			return false;
-		}*/
-		
-		return true;
-	}
-	
-	//For visual reference
+
 	public void renderCrosshair()
 	{
 		GL11.glColor3f(0.5f, 0.5f, 1.0f);
 		GL11.glPushMatrix();
 			GL11.glBegin(GL11.GL_LINES);
-			GL11.glVertex2i(offsetX, Display.getHeight()/2 + offsetY);
-			GL11.glVertex2i(Display.getWidth()+offsetX, Display.getHeight()/2 + offsetY);
+			GL11.glVertex2i(0, Display.getHeight()/2);
+			GL11.glVertex2i(Display.getWidth(), Display.getHeight()/2);
 			GL11.glEnd();
 		GL11.glPopMatrix();
 		
 		GL11.glPushMatrix();
 			GL11.glBegin(GL11.GL_LINES);
-			GL11.glVertex2i(Display.getWidth()/2 + offsetX, offsetY);
-			GL11.glVertex2i(Display.getWidth()/2 + offsetX, Display.getHeight() + offsetY);
+			GL11.glVertex2i(Display.getWidth()/2, 0);
+			GL11.glVertex2i(Display.getWidth()/2, Display.getHeight());
 			GL11.glEnd();
 		GL11.glPopMatrix();	
 	}
