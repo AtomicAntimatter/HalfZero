@@ -1,9 +1,12 @@
 package halfzero;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Iterator;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.GL11;
+import org.newdawn.slick.opengl.Texture;
+import org.newdawn.slick.opengl.TextureLoader;
 
 public class Map
 {
@@ -13,11 +16,21 @@ public class Map
 	private float zoomFactor = 1; 
 	private float centerX, centerY;
 	private java.util.Map<int[], Tile> tileMap = new HashMap();
+	Texture texture;
 	
+	@SuppressWarnings("CallToThreadDumpStack")
 	public Map(final int _MAP_LENGTH, final int _MAP_WIDTH)
 	{
 		MAP_LENGTH = _MAP_LENGTH;
 		MAP_WIDTH = _MAP_WIDTH;	
+		
+		try
+		{
+			texture = TextureLoader.getTexture("PNG", this.getClass().getResourceAsStream("/Resources/texture_grass.png"));
+		}catch(IOException e)
+		{
+			e.printStackTrace();
+		}
 		
 		centerX = Display.getWidth()/2 - TILE_WIDTH*(MAP_LENGTH+MAP_WIDTH)/4;
 		centerY = Display.getHeight()/2 - TILE_HEIGHT/2 - TILE_HEIGHT*(MAP_LENGTH - MAP_WIDTH)/4;
@@ -28,9 +41,8 @@ public class Map
 			{
 				int x = ((j+i)*TILE_WIDTH/2);
 				int y = ((j-i)*TILE_HEIGHT/2);
-							
-				float[] colors = {(float)Math.random(), (float)Math.random(), (float)Math.random()};
-				tileMap.put(new int[]{x, y}, new Tile(x, y, TILE_WIDTH, TILE_HEIGHT, colors));
+
+				tileMap.put(new int[]{x, y}, new Tile(x, y, TILE_WIDTH, TILE_HEIGHT));
 			}
 		}	
 	}
@@ -72,7 +84,6 @@ public class Map
 
 	public void renderCrosshair()
 	{
-		GL11.glColor3f(0.5f, 0.5f, 1.0f);
 		GL11.glPushMatrix();
 			GL11.glBegin(GL11.GL_LINES);
 			GL11.glVertex2i(0, Display.getHeight()/2);
@@ -93,10 +104,9 @@ public class Map
 		private final int x1, x2, x3, x4;
 		private final int y1, y2, y3, y4;
 		public final int x, y, h, w;
-		private float red = 0, green = 0, blue = 0;
-		
-		public Tile(final int _x, final int _y, final int _w, final int _h, final float[] colors)
-		{
+
+		public Tile(final int _x, final int _y, final int _w, final int _h)
+		{	
 			x = _x; y = _y; h = _h; w = _w;
 
 			x1 = x; 
@@ -107,18 +117,21 @@ public class Map
 			y3 = y-h/2;
 			x4 = x-w/2; 
 			y4 = y;
-			
-			red = colors[0]; green = colors[1]; blue = colors[2];
+
 		}
 		
 		public void renderTile()
 		{
-			GL11.glColor3f(red, green, blue);
+			texture.bind();
 			GL11.glPushMatrix();
 				GL11.glBegin(GL11.GL_QUADS);
+				GL11.glTexCoord2f(0, 0);
 				GL11.glVertex2f(x1*zoomFactor + centerX, y1*zoomFactor + centerY);
+				GL11.glTexCoord2f(1, 0);
 				GL11.glVertex2f(x2*zoomFactor + centerX, y2*zoomFactor + centerY);
+				GL11.glTexCoord2f(1, 1);
 				GL11.glVertex2f(x3*zoomFactor + centerX, y3*zoomFactor + centerY);
+				GL11.glTexCoord2f(0, 1);
 				GL11.glVertex2f(x4*zoomFactor + centerX, y4*zoomFactor + centerY);
 				GL11.glEnd();
 			GL11.glPopMatrix();

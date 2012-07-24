@@ -18,7 +18,7 @@ public class HalfZero
 	private static enum State {INTRO, MAIN_MENU, GAME};
 	private static State state = State.GAME;
 	private static Map gameMap;
-	private static final int MAP_LENGTH = 50, MAP_WIDTH = 50;
+	private static final int MAP_LENGTH = 20, MAP_WIDTH = 30;
 	
 	@SuppressWarnings("CallToThreadDumpStack")
 	public static void main(String argv[]) 
@@ -52,6 +52,13 @@ public class HalfZero
 			Logger.getLogger(HalfZero.class.getName()).log(Level.SEVERE, null, ex);
 		}
 		
+		GL11.glEnable(GL11.GL_TEXTURE_2D);     
+		GL11.glEnable(GL11.GL_BLEND);
+        GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+		
+		GL11.glViewport(0,0,Display.getWidth(), Display.getHeight());
+		GL11.glMatrixMode(GL11.GL_MODELVIEW);
+			
 		GL11.glMatrixMode(GL11.GL_PROJECTION);
 		GL11.glLoadIdentity();
 		GL11.glOrtho(0, Display.getWidth(), 0, Display.getHeight(), 1, -1);
