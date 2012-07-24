@@ -225,7 +225,7 @@ public class GridList<E> implements Collection<E> {
         
         private Iterator<Entry> i;
         private final IterationOrder or;
-        private Entry e;
+        private Entry e = head;
         
         public EIterator () {
             this(IterationOrder.COL_MAJOR);

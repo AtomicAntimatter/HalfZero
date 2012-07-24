@@ -23,11 +23,13 @@ public class HalfZero
 	
 	private static enum State {INTRO, MAIN_MENU, GAME};
 	private static State state = State.GAME;
+	private static Map gameMap;
+	private static final int MAP_LENGTH = 10, MAP_WIDTH = 10;
 	
         private static GridList<Tile> tiles;
         
 	@SuppressWarnings("CallToThreadDumpStack")
-	public static void main(String[] argv) 
+	public static void main(String argv[]) 
 	{
                 tiles = new GridList<Tile>(WIDTH, HEIGHT);
                 
@@ -74,6 +76,7 @@ public class HalfZero
 		glOrtho(0, Display.getWidth(), 0, Display.getHeight(), 1, -1);
 		glMatrixMode(GL_MODELVIEW);
 		
+		gameMap = new Map(MAP_LENGTH, MAP_WIDTH);	
 		getDelta();
 	}
 	
@@ -119,6 +122,12 @@ public class HalfZero
 				finished = true;
 			}
 		}
+		
+		gameMap.moveMap(
+				(Keyboard.isKeyDown(Keyboard.KEY_LEFT)?delta:0)
+				+ (Keyboard.isKeyDown(Keyboard.KEY_RIGHT)?-delta:0),
+				(Keyboard.isKeyDown(Keyboard.KEY_UP)?-delta:0) 
+				+ (Keyboard.isKeyDown(Keyboard.KEY_DOWN)?delta:0));
 	}
 	
 	private static int getDelta() 
@@ -132,11 +141,12 @@ public class HalfZero
 
 	private static void gameRender() 
 	{
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		glColor3f(0.5f, 0.5f, 1.0f);
-                
-                
-                
+                glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		
+		gameMap.renderMap();
+		gameMap.renderCrosshair();
+		
+		glFlush();
 	}	
 	
 	private static void cleanup()
