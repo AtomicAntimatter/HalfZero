@@ -25,6 +25,7 @@ public class HalfZero
 	private static State state = State.GAME;
 	private static Map gameMap;
 	private static final int MAP_LENGTH = 10, MAP_WIDTH = 10;
+
 	
         private static GridList<Tile> tiles;
         
@@ -113,6 +114,14 @@ public class HalfZero
 		if(Keyboard.isKeyDown(Keyboard.KEY_ESCAPE))
 		{
 			finished = true;
+		}
+		else if(Keyboard.isKeyDown(Keyboard.KEY_ADD))
+		{
+			gameMap.zoomMap(delta);
+		}
+		else if(Keyboard.isKeyDown(Keyboard.KEY_SUBTRACT))
+		{
+			gameMap.zoomMap(-delta);
 		}
 		
 		while(Keyboard.next())
