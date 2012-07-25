@@ -98,7 +98,7 @@ public class HalfZero
 
 	private static void gameLogic(int delta) 
 	{
-		if(Keyboard.isKeyDown(Keyboard.KEY_ESCAPE))
+		if(Keyboard.isKeyDown(Keyboard.KEY_ESCAPE)||Keyboard.isKeyDown(Keyboard.KEY_E))
 		{
 			finished = true;
 		}
