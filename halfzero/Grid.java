@@ -4,6 +4,8 @@
  */
 package halfzero;
 
+import java.util.Iterator;
+
 /**
  *
  * @author harrison
@@ -29,4 +31,6 @@ public interface Grid <E extends java.io.Serializable> extends java.io.Serializa
     public static class DimensionMismatchException extends Exception {}
     void adjoinH(Grid<E> n) throws DimensionMismatchException;
     void adjoinV(Grid<E> n) throws DimensionMismatchException;
+    
+    Iterator<E> iterator();
 }

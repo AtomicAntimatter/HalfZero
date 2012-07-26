@@ -180,4 +180,40 @@ public class ListGrid <E extends java.io.Serializable> implements Grid<E> {
             for (int j = 0; j < n.height(); j++)
                 this.set(i, h + j, n.get(i, j));
     }
+
+    private class Itr implements java.util.Iterator {
+        
+        Iterator<List<E>> h = col.iterator();
+        List<E> c = h.next();
+        Iterator<E> v = c.iterator();
+
+        @Override
+        public boolean hasNext() {
+            return h.hasNext() || v.hasNext();
+        }
+
+        @Override
+        public Object next() {
+            if(v.hasNext())
+                return v.next();
+            else if(h.hasNext()) {
+                c = h.next();
+                v = c.iterator();
+                if(v.hasNext())
+                    return v.next();
+            }
+            return null;
+        }
+
+        @Override
+        public void remove() {
+            throw new UnsupportedOperationException("Not supported yet.");
+        }
+        
+    }
+    
+    @Override
+    public Iterator<E> iterator() {
+        return new Itr();
+    }
 }

@@ -4,10 +4,12 @@
  */
 package halfzero;
 
+import halfzero.Grid.DimensionMismatchException;
 import java.util.Map;
 import java.util.Set;
 import java.io.*;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.logging.Level;
@@ -17,84 +19,198 @@ import java.util.logging.Logger;
  *
  * @author harrison
  */
-public class CachedFileGrid <E extends java.io.Serializable> implements GridIO<E> {
+public class CachedFileGrid <E extends java.io.Serializable> implements CachedGrid<E> {
 
-    private class SubGrid implements Serializable {
-        public int x0, y0;
-    }
-    public class CachedSubGrid extends SubGrid {
-        public Grid<E> grid;
+    private static class SubGrid<E extends java.io.Serializable> {
+        public static enum State {
+            CACHED,
+            PAGED
+        }
         
-        public PagedSubGrid page() throws IOException {
-            PagedSubGrid psg = new PagedSubGrid();
-            psg.x0 = x0; psg.y0 = y0;
+        public final int x0, y0;
+        private Grid<E> grid;
+        private File loc;
+        private State state;
+        
+        public SubGrid (Grid<E> contents, int _x0, int _y0) {
+            x0 = _x0; y0 = _y0;
+            grid = contents;
+            loc = null;
+            state = State.CACHED;
+        }
+        
+        public Grid<E> get() {
+            try {
+                if(state == State.CACHED)
+                    return grid;
+                
+                cache();
+                Grid<E> g = grid;
+                page();
+                
+                return g;
+            } catch (Exception ex) {
+                throw new RuntimeException(ex);
+            }
+        }
+        
+        public State state() {
+            return state;
+        }
+        
+        public void page() throws IOException {
+            if(state == State.PAGED) return;
             
-            psg.loc = File.createTempFile("HalfZero-", null);
-            ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(psg.loc));
+            loc = File.createTempFile("HalfZero-", null);
+            ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(loc));
             oos.writeObject(grid);
             oos.close();
             
             grid = null;
-            
-            return psg;
+            state = State.PAGED;
         }
-    }
-    public class PagedSubGrid extends SubGrid {
-        public File loc;
         
-        public CachedSubGrid cache() throws IOException {
+        public void cache() throws IOException {
+            if(state == State.CACHED) return;
+            
             try {
-                CachedSubGrid csg = new CachedSubGrid();
-                csg.x0 = x0; csg.y0 = y0;
-                
                 ObjectInputStream ois = new ObjectInputStream(new FileInputStream(loc));
-                csg.grid = Grid.class.cast(ois.readObject());
+                grid = Grid.class.cast(ois.readObject());
                 ois.close();
                 
                 loc.delete();
                 loc = null;
-                
-                return csg;
+                state = State.CACHED;
             } catch (ClassNotFoundException ex) {
                 throw new IOException(ex);
             }
         }
     }
     
-    private int wm, hm, px, py, xn, yn;
+    private int w, h, wm, hm, px, py, xn, yn;
     
-    Set<SubGrid> subgrids;
-    Queue<CachedSubGrid> cache;
+    Set<SubGrid<E>> subgrids;
+    Queue<SubGrid<E>> cache;
     
     public CachedFileGrid (Grid<E> backing, int wmax, int hmax, int x0, int y0) throws IOException {
         wm = wmax; hm = hmax;
         px = x0; py = y0;
+        w = backing.width();
+        h = backing.height();
         
-        subgrids = new HashSet<SubGrid>();
+        subgrids = new HashSet<SubGrid<E>>();
         
         int i, j;
-        for(i = 0; i < backing.width(); i += wmax)              
-            for(j = 0; j < backing.height(); j += hmax) {    
+        for(i = 0; i < w; i += wmax)              
+            for(j = 0; j < h; j += hmax) {    
                 int x1 = i + wmax - 1,
                     y1 = j + hmax - 1;
-                x1 = x1<backing.width()?x1:(backing.width()-1);
-                y1 = y1<backing.height()?y1:(backing.height()-1);
+                x1 = x1<w?x1:(w-1);
+                y1 = y1<h?y1:(h-1);
                 
-                CachedSubGrid csg = new CachedSubGrid();
-                csg.grid = backing.subGrid(i, x1, j, y1);
+                SubGrid csg = new SubGrid(backing.subGrid(i, x1, j, y1), i/wmax, j/hmax);
                 
-                SubGrid sg = csg.page();
-                
-                sg.x0 = i;
-                sg.y0 = j;
-                subgrids.add(sg);
+                csg.page();
+                subgrids.add(csg);
             }
         
-        cache = new LinkedList<SubGrid>();
+        cache = new LinkedList<SubGrid<E>>();
+    }
+    
+    private SubGrid<E> locate(int x, int y) {
+        int xx = (x/wm)*wm, yy = (y/hm)*hm;
+        
+        SubGrid<E> res;
+        Iterator<SubGrid<E>> i = subgrids.iterator();
+        while(i.hasNext()) {
+            res = i.next();
+            if(res.x0 == xx && res.y0 == yy)
+                return res;
+        }
+        return null;
+    }
+    
+    @Override
+    public int width() {
+        return w;
     }
 
     @Override
-    public Grid<E> get(int x0, int x1, int y0, int y1) {
+    public int height() {
+        return h;
+    }
+
+    @Override
+    public boolean isEmpty() {
+        return w == 0 && h == 0;
+    }
+
+    @Override
+    public boolean contains(E o) {
+        Iterator<SubGrid<E>> i = subgrids.iterator();
+        while(i.hasNext())
+            if(i.next().get().contains(o))
+                return true;
+        return false;
+    }
+
+    @Override
+    public E[][] toArray() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public E get(int x, int y) {
+        try {
+            SubGrid<E> sg = locate(x,y);
+            
+            if(!cache.contains(sg)) {
+                if(cache.element() != null)
+                    cache.poll().page();
+                sg.cache();
+                cache.add(sg);
+            }
+            
+            return sg.get().get(x%wm, y%hm);
+            
+        } catch (IOException ex) {
+            throw new RuntimeException(ex);
+        }
+        
+    }
+
+    @Override
+    public void set(int x, int y, E _val) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public Grid<E> subGrid(int x0, int x1, int y0, int y1) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public void insert(Grid<E> sg, int x0, int y0) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public void grow(int dx, int dy) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public void grow(int dx, int dy, E o) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public void adjoinH(Grid<E> n) throws DimensionMismatchException {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public void adjoinV(Grid<E> n) throws DimensionMismatchException {
         throw new UnsupportedOperationException("Not supported yet.");
     }
     

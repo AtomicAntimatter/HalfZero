@@ -12,7 +12,8 @@ public class Map
 	private int offsetX = 0, offsetY = 0;
 	private float zoomFactor = 1; 
 	private float centerX, centerY;
-	private java.util.Map<int[], Tile> tileMap = new HashMap();
+	//private java.util.Map<int[], Tile> tileMap = new HashMap();
+        private Grid<Tile> map;
 	
 	public Map(final int _MAP_LENGTH, final int _MAP_WIDTH)
 	{
@@ -21,6 +22,8 @@ public class Map
 		
 		centerX = Display.getWidth()/2 - TILE_WIDTH*(MAP_LENGTH+MAP_WIDTH)/4;
 		centerY = Display.getHeight()/2 - TILE_HEIGHT/2 - TILE_HEIGHT*(MAP_LENGTH - MAP_WIDTH)/4;
+                
+                map = new ListGrid<Tile>(MAP_LENGTH, MAP_WIDTH, java.util.ArrayList.class);
 		
 		for(int i = 0; i < MAP_WIDTH; i++)
 		{	
@@ -30,7 +33,8 @@ public class Map
 				int y = ((j-i)*TILE_HEIGHT/2);
 							
 				float[] colors = {(float)Math.random(), (float)Math.random(), (float)Math.random()};
-				tileMap.put(new int[]{x, y}, new Tile(x, y, TILE_WIDTH, TILE_HEIGHT, colors));
+				//tileMap.put(new int[]{x, y}, new Tile(x, y, TILE_WIDTH, TILE_HEIGHT, colors));
+                                map.set(x, y, new Tile(x, y, TILE_WIDTH, TILE_HEIGHT, colors));
 			}
 		}	
 	}
@@ -55,12 +59,9 @@ public class Map
 	
 	public void renderMap()
 	{		
-		Iterator i = tileMap.entrySet().iterator();
+		Iterator<Tile> i = map.iterator();
 		while(i.hasNext())
-		{
-			java.util.Map.Entry<int[], Tile> pair = (java.util.Map.Entry<int[], Tile>)i.next();
-			pair.getValue().renderTile();
-		}
+                    i.next().renderTile();
 	}
 
 	public void renderCrosshair()
@@ -81,7 +82,7 @@ public class Map
 		GL11.glPopMatrix();
 	}
 	
-	public class Tile
+	public class Tile implements java.io.Serializable
 	{
 		private final int x1, x2, x3, x4;
 		private final int y1, y2, y3, y4;

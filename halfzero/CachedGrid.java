@@ -3,19 +3,8 @@ package halfzero;
 import java.util.HashMap;
 import java.util.Set;
 
-public interface GridIO<E extends java.io.Serializable> 
-{
-	/*
-	 * Maybe do all of this on a different thread
-	 */
-	
-	
-	//Return a set of Tiles that are within the bounds.
-	//This method should be fast
-	//These tiles are stored in an external file
-	//If some tiles are in cache, don't take from file. Append cache to set.
-	Grid<E> get(int x0, int x1, int y0, int y1);
-	
+public interface CachedGrid<E extends java.io.Serializable> extends Grid<E>
+{	
 	//This checks the cache for tiles that have not been used in awhile
 	//A tile's time spent in cache is proportional to frequency accessed
 	//This method is called once every 200ms

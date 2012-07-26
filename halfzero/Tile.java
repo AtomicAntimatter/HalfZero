@@ -13,6 +13,6 @@ import org.lwjgl.util.Color;
  *
  * @author harrison
  */
-class Tile {
+class Tile implements java.io.Serializable {
     public Color color;
 }
