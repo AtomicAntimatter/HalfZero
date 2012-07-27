@@ -41,7 +41,7 @@ public class Map
 	
 	public void zoomMap(int delta)
 	{
-		zoomFactor += 0.001f*delta;
+		zoomFactor = Math.max(Math.min(zoomFactor+0.001f*delta, 3f), 0.35f);
 		centerX = Display.getWidth()/2 - zoomFactor*(TILE_WIDTH*(MAP_LENGTH+MAP_WIDTH)/4 + offsetX);
 		centerY = Display.getHeight()/2 - zoomFactor*(TILE_HEIGHT/2 + TILE_HEIGHT*(MAP_LENGTH - MAP_WIDTH)/4 + offsetY);
 	}
@@ -61,7 +61,13 @@ public class Map
 	{		
 		Iterator<Tile> i = map.iterator();
 		while(i.hasNext())
-                    i.next().renderTile();
+		{
+			Tile t = i.next();
+			if(t.isOnscreen())
+			{
+				t.renderTile();
+			}
+		}            
 	}
 
 	public void renderCrosshair()
@@ -103,6 +109,18 @@ public class Map
 			y4 = y;
 			
 			red = colors[0]; green = colors[1]; blue = colors[2];
+		}
+		
+		public boolean isOnscreen()
+		{
+			if(((x*zoomFactor + centerX)>-TILE_WIDTH*zoomFactor/2)
+				&&((x*zoomFactor + centerX)< Display.getWidth()+TILE_WIDTH*zoomFactor/2)
+				&&((y*zoomFactor + centerY) < Display.getHeight()+TILE_HEIGHT*zoomFactor/2)
+				&&((x1*zoomFactor + centerY) > -TILE_HEIGHT*zoomFactor/2))
+			{
+				return true;
+			}
+			return false;
 		}
 		
 		public void renderTile()
