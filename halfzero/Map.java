@@ -23,18 +23,18 @@ public class Map
 		centerX = Display.getWidth()/2 - TILE_WIDTH*(MAP_LENGTH+MAP_WIDTH)/4;
 		centerY = Display.getHeight()/2 - TILE_HEIGHT/2 - TILE_HEIGHT*(MAP_LENGTH - MAP_WIDTH)/4;
                 
-                map = new ListGrid<Tile>(MAP_LENGTH, MAP_WIDTH, java.util.ArrayList.class);
+                map = new ListGrid<Tile>(MAP_LENGTH, MAP_WIDTH, java.util.LinkedList.class);
 		
 		for(int i = 0; i < MAP_WIDTH; i++)
 		{	
-			for(int j = MAP_LENGTH; j > 0; j--)
+			for(int j = MAP_LENGTH - 1; j >= 0; j--)
 			{
 				int x = ((j+i)*TILE_WIDTH/2);
 				int y = ((j-i)*TILE_HEIGHT/2);
 							
 				float[] colors = {(float)Math.random(), (float)Math.random(), (float)Math.random()};
 				//tileMap.put(new int[]{x, y}, new Tile(x, y, TILE_WIDTH, TILE_HEIGHT, colors));
-                                map.set(x, y, new Tile(x, y, TILE_WIDTH, TILE_HEIGHT, colors));
+                                map.set(i, j, new Tile(x, y, TILE_WIDTH, TILE_HEIGHT, colors));
 			}
 		}	
 	}

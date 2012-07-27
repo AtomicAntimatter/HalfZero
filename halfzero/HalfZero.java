@@ -24,7 +24,7 @@ public class HalfZero
 	private static enum State {INTRO, MAIN_MENU, GAME};
 	private static State state = State.GAME;
 	private static Map gameMap;
-	private static final int MAP_LENGTH = 10, MAP_WIDTH = 10;
+	private static final int MAP_LENGTH = 1000, MAP_WIDTH = 1000;
 
 	
         private static GridList<Tile> tiles;
@@ -63,7 +63,7 @@ public class HalfZero
 		
 		try
 		{
-			Display.setFullscreen(true);
+			Display.setFullscreen(false);
 			Display.setVSyncEnabled(true);
 			Display.create();
 		}

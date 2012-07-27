@@ -21,6 +21,11 @@ import java.util.logging.Logger;
  */
 public class CachedFileGrid <E extends java.io.Serializable> implements CachedGrid<E> {
 
+    @Override
+    public Iterator<E> iterator() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
     private static class SubGrid<E extends java.io.Serializable> {
         public static enum State {
             CACHED,

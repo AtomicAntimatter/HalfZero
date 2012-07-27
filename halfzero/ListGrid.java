@@ -21,7 +21,19 @@ public class ListGrid <E extends java.io.Serializable> implements Grid<E> {
     
     private List<List<E>> col;
     
+    public ListGrid (int _w, int _h) {
+        this(_w,_h,java.util.ArrayList.class,null);
+    }
+    
+    public ListGrid (int _w, int _h, E def) {
+        this(_w,_h,java.util.ArrayList.class, def);
+    }
+    
     public ListGrid (int _w, int _h, Class<? extends List> type) {
+        this(_w,_h,type,null);
+    }
+    
+    public ListGrid (int _w, int _h, Class<? extends List> type, E def) {
         w = _w;
         h = _h;
         ty = type;
@@ -38,8 +50,12 @@ public class ListGrid <E extends java.io.Serializable> implements Grid<E> {
         
         col = consList(w);
 
-        for(int i = 0; i < w; i++)
-            col.add(consList(h));
+        for(int i = 0; i < w; i++) {
+            List<E> c = consList(h);
+            for(int j = 0; j < h; j++) 
+                c.add(def);
+            col.add(c);
+        }
     }
     
     private List consList(int p) {
