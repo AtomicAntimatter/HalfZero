@@ -12,7 +12,7 @@ public class Map
 	private int offsetX = 0, offsetY = 0;
 	private float zoomFactor = 1; 
 	private float centerX, centerY;
-	//private java.util.Map<int[], Tile> tileMap = new HashMap();
+	private java.util.Map<Coordinate, Tile> tileMap = new HashMap();
         private Grid<Tile> map;
 	
 	public Map(final int _MAP_LENGTH, final int _MAP_WIDTH)
