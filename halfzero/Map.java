@@ -6,11 +6,14 @@ import java.util.Map.Entry;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.GL11;
 
+import static halfzero.util.Functions.*;
+
 public class Map
 {
 	private final int TILE_HEIGHT = 38, TILE_WIDTH = 76;
 	private final int MAP_LENGTH, MAP_WIDTH; 
 	private int offsetX = 0, offsetY = 0;
+        private Tile center;
 	private float zoomFactor = 1; 
 	private float centerX, centerY;
 	private java.util.Map<int[], Tile> tileMap = new HashMap();
@@ -56,6 +59,8 @@ public class Map
 		
 		centerX = Display.getWidth()/2 - zoomFactor*(TILE_WIDTH*(MAP_LENGTH+MAP_WIDTH)/4 + offsetX);
 		centerY = Display.getHeight()/2 - zoomFactor*(TILE_HEIGHT/2 + TILE_HEIGHT*(MAP_LENGTH - MAP_WIDTH)/4 + offsetY);
+                
+                
 	}
 	
 	public void renderMap()
@@ -125,16 +130,33 @@ public class Map
 		}
 		
 		public void renderTile()
-                {
-                        GL11.glColor3f(red, green, blue);
+                {     
+                    final float a = x1 * zoomFactor + centerX;
+                    final float b = y1 * zoomFactor + centerY;
+                    final float c = x2 * zoomFactor + centerX;
+                    final float d = y2 * zoomFactor + centerY;
+                    final float e = x3 * zoomFactor + centerX;
+                    final float f = y3 * zoomFactor + centerY;
+                    final float g = x4 * zoomFactor + centerX;
+                    final float h = y4 * zoomFactor + centerY;
+                    final float[] xs = {a,c,e,g};
+                    final float[] ys = {b,d,f,h};
+                    
+                    if(pnpoly(4, xs, ys, Display.getWidth()/2, Display.getHeight()/2)){
+                        center = this;
+                        GL11.glColor3f(1, 1, 1);
+                    }
+                    else GL11.glColor3f(red,green,blue);
+                    
 			GL11.glPushMatrix();
 				GL11.glBegin(GL11.GL_QUADS);
-				GL11.glVertex2f(x1*zoomFactor + centerX, y1*zoomFactor + centerY);
-				GL11.glVertex2f(x2*zoomFactor + centerX, y2*zoomFactor + centerY);
-				GL11.glVertex2f(x3*zoomFactor + centerX, y3*zoomFactor + centerY);
-				GL11.glVertex2f(x4*zoomFactor + centerX, y4*zoomFactor + centerY);
+				GL11.glVertex2f(a, b);
+				GL11.glVertex2f(c, d);
+				GL11.glVertex2f(e, f);
+				GL11.glVertex2f(g, h);
 				GL11.glEnd();
 			GL11.glPopMatrix();
+                        
 		}
 	}
 }
