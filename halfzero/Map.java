@@ -2,6 +2,7 @@ package halfzero;
 
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map.Entry;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.GL11;
 
@@ -12,7 +13,7 @@ public class Map
 	private int offsetX = 0, offsetY = 0;
 	private float zoomFactor = 1; 
 	private float centerX, centerY;
-	private java.util.Map<Coordinate, Tile> tileMap = new HashMap();
+	private java.util.Map<int[], Tile> tileMap = new HashMap();
         private Grid<Tile> map;
 	
 	public Map(final int _MAP_LENGTH, final int _MAP_WIDTH)
@@ -23,7 +24,7 @@ public class Map
 		centerX = Display.getWidth()/2 - TILE_WIDTH*(MAP_LENGTH+MAP_WIDTH)/4;
 		centerY = Display.getHeight()/2 - TILE_HEIGHT/2 - TILE_HEIGHT*(MAP_LENGTH - MAP_WIDTH)/4;
                 
-                map = new ListGrid<Tile>(MAP_LENGTH, MAP_WIDTH, java.util.LinkedList.class);
+                map = new HashGrid<Tile>(MAP_LENGTH, MAP_WIDTH);
 		
 		for(int i = 0; i < MAP_WIDTH; i++)
 		{	
@@ -58,10 +59,16 @@ public class Map
 	}
 	
 	public void renderMap()
-	{		
+	{	
+            // /*
 		Iterator<Tile> i = map.iterator();
 		while(i.hasNext())
                     i.next().renderTile();
+            // */
+            /*Iterator<Entry<int[],Tile>> i = tileMap.entrySet().iterator();
+            while(i.hasNext())
+                i.next().getValue().renderTile();
+             */
 	}
 
 	public void renderCrosshair()
