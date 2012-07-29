@@ -1,8 +1,6 @@
 package halfzero;
 
-import halfzero.util.GridList.Entry;
 import java.util.Iterator;
-import halfzero.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.lwjgl.LWJGLException;
@@ -12,7 +10,6 @@ import org.lwjgl.opengl.Display;
 import org.lwjgl.util.Color;
 
 import static org.lwjgl.opengl.GL11.*;
-import static halfzero.util.Functions.*;
 
 public class HalfZero 
 {   
@@ -27,22 +24,10 @@ public class HalfZero
 	private static final int MAP_LENGTH = 500, MAP_WIDTH = 500;
 
 	
-        private static GridList<Tile> tiles;
         
 	@SuppressWarnings("CallToThreadDumpStack")
 	public static void main(String argv[]) 
 	{
-                tiles = new GridList<Tile>(WIDTH, HEIGHT);
-                
-                Iterator<GridList<Tile>.Entry> i = tiles.entryIterator();
-                
-                while(i.hasNext()) {
-                    GridList<Tile>.Entry e = i.next();
-                    Tile t = new Tile();
-                    t.color = new Color(randInt(255), randInt(255), randInt(255));
-                    e.setValue(t);
-                }
-                
 		try
 		{
 			init();
