@@ -1,13 +1,11 @@
 package halfzero;
 
-import java.util.Iterator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.Sys;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.Display;
-import org.lwjgl.util.Color;
 
 import static org.lwjgl.opengl.GL11.*;
 
