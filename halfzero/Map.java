@@ -12,6 +12,7 @@ public class Map
 {
 	private final int TILE_HEIGHT = 38, TILE_WIDTH = 76;
 	private final int MAP_LENGTH, MAP_WIDTH; 
+        private final float MAP_RADIUS;
 	private int offsetX = 0, offsetY = 0;
         private Tile center;
 	private float zoomFactor = 1; 
@@ -23,6 +24,7 @@ public class Map
 	{
 		MAP_LENGTH = _MAP_LENGTH;
 		MAP_WIDTH = _MAP_WIDTH;	
+                MAP_RADIUS = (float) Math.sqrt(_MAP_LENGTH*_MAP_LENGTH+_MAP_WIDTH*_MAP_WIDTH);
 		
 		centerX = Display.getWidth()/2 - TILE_WIDTH*(MAP_LENGTH+MAP_WIDTH)/4;
 		centerY = Display.getHeight()/2 - TILE_HEIGHT/2 - TILE_HEIGHT*(MAP_LENGTH - MAP_WIDTH)/4;
@@ -69,6 +71,7 @@ public class Map
 		Iterator<Tile> i = map.iterator();
 		while(i.hasNext()){
 			Tile t = i.next();
+                        t.updatePoints();
 			if(t.isOnscreen())
 			{
 				t.renderTile();
@@ -98,6 +101,7 @@ public class Map
 	{
 		private final int x1, x2, x3, x4;
 		private final int y1, y2, y3, y4;
+                private final float[] xs = {0,0,0,0}, ys = {0,0,0,0};
 		public final int x, y, h, w;
 		private float red = 0, green = 0, blue = 0;
 		
@@ -116,8 +120,13 @@ public class Map
 			
 			red = colors[0]; green = colors[1]; blue = colors[2];
 		}
+                
+                public boolean isOnscreen() {
+                    //return isOnscreenLegacy();
+                    return isOnscreenNew();
+                }
 		
-		public boolean isOnscreen()
+		public boolean isOnscreenLegacy()
 		{
 			if(((x*zoomFactor + centerX)>-TILE_WIDTH*zoomFactor/2)
 				&&((x*zoomFactor + centerX)< Display.getWidth()+TILE_WIDTH*zoomFactor/2)
@@ -128,32 +137,51 @@ public class Map
 			}
 			return false;
 		}
+                
+                public boolean isOnscreenNew() {
+                    if(this == center) return true;
+                    return distanceFrom(center) < 2*MAP_RADIUS;
+                }
+                
+                protected float distanceFrom(Tile t) {
+                    if(t == null) return Float.MAX_VALUE;
+                    float dist = 0;
+                    if(t.x4 > this.x2)
+                        dist += t.x4 - this.x2;
+                    else if (t.x2 > this.x4)
+                        dist += t.x2 - this.x4;
+                    if(t.y1 > this.y3)
+                        dist += t.y1 - this.y3;
+                    else if (t.y3 > this.y1)
+                        dist += t.y3 - this.y1;
+                    return dist;
+                }
+                
+                public void updatePoints () {
+                    xs[0] = x1 * zoomFactor + centerX;
+                    ys[0] = y1 * zoomFactor + centerY;
+                    xs[1] = x2 * zoomFactor + centerX;
+                    ys[1] = y2 * zoomFactor + centerY;
+                    xs[2] = x3 * zoomFactor + centerX;
+                    ys[2] = y3 * zoomFactor + centerY;
+                    xs[3] = x4 * zoomFactor + centerX;
+                    ys[3] = y4 * zoomFactor + centerY;
+                    if(pnpoly(4, xs, ys, Display.getWidth()/2, Display.getHeight()/2))
+                        center = this;
+                }
 		
 		public void renderTile()
                 {     
-                    final float a = x1 * zoomFactor + centerX;
-                    final float b = y1 * zoomFactor + centerY;
-                    final float c = x2 * zoomFactor + centerX;
-                    final float d = y2 * zoomFactor + centerY;
-                    final float e = x3 * zoomFactor + centerX;
-                    final float f = y3 * zoomFactor + centerY;
-                    final float g = x4 * zoomFactor + centerX;
-                    final float h = y4 * zoomFactor + centerY;
-                    final float[] xs = {a,c,e,g};
-                    final float[] ys = {b,d,f,h};
-                    
-                    if(pnpoly(4, xs, ys, Display.getWidth()/2, Display.getHeight()/2)){
-                        center = this;
+                    if(center == this)
                         GL11.glColor3f(1, 1, 1);
-                    }
                     else GL11.glColor3f(red,green,blue);
                     
 			GL11.glPushMatrix();
 				GL11.glBegin(GL11.GL_QUADS);
-				GL11.glVertex2f(a, b);
-				GL11.glVertex2f(c, d);
-				GL11.glVertex2f(e, f);
-				GL11.glVertex2f(g, h);
+				GL11.glVertex2f(xs[0], ys[0]);
+				GL11.glVertex2f(xs[1], ys[1]);
+				GL11.glVertex2f(xs[2], ys[2]);
+				GL11.glVertex2f(xs[3], ys[3]);
 				GL11.glEnd();
 			GL11.glPopMatrix();
                         
