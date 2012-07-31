@@ -79,7 +79,7 @@ public class Map
             try {
                 for (nil((x = center.i) + (t = center.j)); map.get(x, t).isOnscreenLegacy(); x++);
                 for (nil((t = center.i) + (y = center.j)); map.get(t, y).isOnscreenLegacy(); y++);
-            } catch (NullPointerException e) {}
+            } catch (ArrayIndexOutOfBoundsException e) {}
             x += FUDGE; y += FUDGE;
             boundX[1] = x; boundY[1] = y;
             boundX[0] = 2*center.i - x; boundY[0] = 2*center.j - y;
