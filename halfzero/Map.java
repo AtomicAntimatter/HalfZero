@@ -14,7 +14,7 @@ public class Map
 	private final int TILE_HEIGHT = 38, TILE_WIDTH = 76;
 	private final int MAP_LENGTH, MAP_WIDTH; 
         private final int FUDGE = 3;
-	private int offsetX = 0, offsetY = 0;
+	private int offsetX = 0, offsetY = 0, width, height;
         private final int[] boundX = {0,0}, boundY = {0,0};
         private Tile center;
 	private float zoomFactor = 1; 
@@ -49,7 +49,7 @@ public class Map
                 while(i.hasNext())
                     i.next().updatePoints();
                 
-                findBounds();
+                findZoom();
 	}
 	
 	public void zoomMap(int delta)
@@ -57,7 +57,7 @@ public class Map
 		zoomFactor = Math.max(Math.min(zoomFactor+0.001f*delta, 3f), 0.35f);
 		centerX = Display.getWidth()/2 - zoomFactor*(TILE_WIDTH*(MAP_LENGTH+MAP_WIDTH)/4 + offsetX);
 		centerY = Display.getHeight()/2 - zoomFactor*(TILE_HEIGHT/2 + TILE_HEIGHT*(MAP_LENGTH - MAP_WIDTH)/4 + offsetY);
-                findBounds();
+                findZoom();
         }
 	
 	public void moveMap(final float moveX, final float moveY)
@@ -73,18 +73,26 @@ public class Map
                 findBounds();
 	}
         
-        private void findBounds() {
+        @SuppressWarnings("CallToThreadDumpStack")
+        private void findZoom() {
             if(center == null) return;
-            int x=-1,y=-1, z = -1,w=-1, t=-1;
+            int x=-1,y=-1, t=-1;
             try {
                 for (nil((x = center.i) + (t = center.j)); map.get(x, t).isOnscreenLegacy(); x++);
                 for (nil((t = center.i) + (y = center.j)); map.get(t, y).isOnscreenLegacy(); y++);
-            } catch (ArrayIndexOutOfBoundsException e) {}
-            x += FUDGE; y += FUDGE;
-            boundX[1] = x; boundY[1] = y;
-            boundX[0] = 2*center.i - x; boundY[0] = 2*center.j - y;
+            } catch (ArrayIndexOutOfBoundsException e) {
+                e.printStackTrace();
+            }
+            width = x - center.i + FUDGE;
+            height = y - center.j + FUDGE;
+            findBounds();
         }
-	
+        
+        private void findBounds() {
+            boundX[1] = width + center.i; boundY[1] = height + center.j;
+            boundX[0] = center.i - width; boundY[0] = center.j - height;            
+        }
+        
 	public void renderMap()
 	{	
 		Iterator<Tile> i = map.iterator();
