@@ -61,10 +61,26 @@ public class Map
                 findZoom();
         }
 	
-	public void moveMap(final float moveX, final float moveY)
+	public void moveMap(float moveX, float moveY)
 	{
 		if((moveX == 0)&&(moveY == 0)) return;
                 
+                if(center.i <= 0) {
+                    moveX = moveX<0?moveX:0;
+                    moveY = moveY>0?moveY:0;
+                }
+                else if(center.i >= map.width()-1) {
+                    moveX = moveX>0?moveX:0;
+                    moveY = moveY<0?moveY:0;
+                }
+                if(center.j <= 0) {
+                    moveX = moveX<0?moveX:0;
+                    moveY = moveY<0?moveY:0;
+                }
+                else if(center.j >= map.height()-1) {
+                    moveX = moveX>0?moveX:0;
+                    moveY = moveY>0?moveY:0;
+                }
 		offsetX -= moveX;
 		offsetY -= moveY;
 		

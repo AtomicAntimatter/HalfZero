@@ -19,7 +19,7 @@ public class HalfZero
 	private static enum State {INTRO, MAIN_MENU, GAME};
 	private static State state = State.GAME;
 	private static Map gameMap;
-	private static final int MAP_LENGTH = 500, MAP_WIDTH = 500;
+	private static final int MAP_LENGTH = 50, MAP_WIDTH = 50;
 
 	
         
