@@ -87,10 +87,10 @@ public class Map
 		Iterator<Tile> i = map.iterator();
 		while(i.hasNext()){
 			Tile t = i.next();
-                        t.updatePoints();
 			if(t.isOnscreen())
 			{
-				t.renderTile();
+                            t.updatePoints();
+                            t.renderTile();
 			}
 		}            
 	}
