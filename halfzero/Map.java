@@ -237,7 +237,11 @@ public class Map
                 }
                 
                 public Tile neighbor(Direction d) {
-                    return m.map.get(co.x+d.dx, co.y+d.dy);
+                    try {
+                        return m.map.get(co.x + d.dx, co.y + d.dy);
+                    } catch (ArrayIndexOutOfBoundsException e) {
+                        return null;
+                    }
                 }
                 
             public enum Direction {
