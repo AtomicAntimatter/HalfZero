@@ -11,28 +11,18 @@ import java.io.Serializable;
  * @author harrison
  */
 public class Coordinate implements Serializable, Cloneable {
-    public final int x, y;
-    /*
-    private static final int GRID_SIZE = 10;
+    public final int x, y, h;
     
-    private static final int GRID_MOD;
-    static {
-        int gmmin = GRID_SIZE*GRID_SIZE;
-        int gm = 1;
-        while (gm < gmmin)
-            gm <<= 1;
-        GRID_MOD = gm;
-    }
-    */
+    public static long XB = 233l, YB = 241l, XM = 433494437l, YM = 2971215073l;
+    
     public Coordinate (int _x, int _y) {
         x = _x; y = _y;
+        h = (int) ((((XB^x)%XM) + ((YB^y)%YM)) % Integer.MAX_VALUE);
     }
-    /*
+    
     @Override
-    public int hashCode() {  //designed to group small areas together in hashcode.
-        int xd = x/GRID_SIZE, yd = y/GRID_SIZE,
-            xm = x%GRID_SIZE, ym = y/GRID_SIZE;
-        return GRID_MOD * (xd + yd) + (xm + ym);
+    public int hashCode() {  
+        return h;
     }
 
     @Override
@@ -52,5 +42,4 @@ public class Coordinate implements Serializable, Cloneable {
         }
         return true;
     }
-     */
 }

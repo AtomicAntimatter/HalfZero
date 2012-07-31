@@ -1,5 +1,6 @@
 package halfzero;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map.Entry;
@@ -12,8 +13,9 @@ public class Map
 {
 	private final int TILE_HEIGHT = 38, TILE_WIDTH = 76;
 	private final int MAP_LENGTH, MAP_WIDTH; 
-        private final float MAP_RADIUS;
+        private final int FUDGE = 3;
 	private int offsetX = 0, offsetY = 0;
+        private final int[] boundX = {0,0}, boundY = {0,0};
         private Tile center;
 	private float zoomFactor = 1; 
 	private float centerX, centerY;
@@ -23,8 +25,7 @@ public class Map
 	public Map(final int _MAP_LENGTH, final int _MAP_WIDTH)
 	{
 		MAP_LENGTH = _MAP_LENGTH;
-		MAP_WIDTH = _MAP_WIDTH;	
-                MAP_RADIUS = (float) Math.sqrt(_MAP_LENGTH*_MAP_LENGTH+_MAP_WIDTH*_MAP_WIDTH);
+		MAP_WIDTH = _MAP_WIDTH;
 		
 		centerX = Display.getWidth()/2 - TILE_WIDTH*(MAP_LENGTH+MAP_WIDTH)/4;
 		centerY = Display.getHeight()/2 - TILE_HEIGHT/2 - TILE_HEIGHT*(MAP_LENGTH - MAP_WIDTH)/4;
@@ -40,9 +41,15 @@ public class Map
 							
 				float[] colors = {(float)Math.random(), (float)Math.random(), (float)Math.random()};
 				//tileMap.put(new int[]{x, y}, new Tile(x, y, TILE_WIDTH, TILE_HEIGHT, colors));
-                                map.set(i, j, new Tile(x, y, TILE_WIDTH, TILE_HEIGHT, colors));
+                                map.set(i, j, new Tile(x, y, i, j, TILE_WIDTH, TILE_HEIGHT, colors));
 			}
-		}	
+		}
+                
+                Iterator<Tile> i = map.iterator();
+                while(i.hasNext())
+                    i.next().updatePoints();
+                
+                findBounds();
 	}
 	
 	public void zoomMap(int delta)
@@ -50,7 +57,8 @@ public class Map
 		zoomFactor = Math.max(Math.min(zoomFactor+0.001f*delta, 3f), 0.35f);
 		centerX = Display.getWidth()/2 - zoomFactor*(TILE_WIDTH*(MAP_LENGTH+MAP_WIDTH)/4 + offsetX);
 		centerY = Display.getHeight()/2 - zoomFactor*(TILE_HEIGHT/2 + TILE_HEIGHT*(MAP_LENGTH - MAP_WIDTH)/4 + offsetY);
-	}
+                findBounds();
+        }
 	
 	public void moveMap(final float moveX, final float moveY)
 	{
@@ -61,13 +69,21 @@ public class Map
 		
 		centerX = Display.getWidth()/2 - zoomFactor*(TILE_WIDTH*(MAP_LENGTH+MAP_WIDTH)/4 + offsetX);
 		centerY = Display.getHeight()/2 - zoomFactor*(TILE_HEIGHT/2 + TILE_HEIGHT*(MAP_LENGTH - MAP_WIDTH)/4 + offsetY);
-                
-                
+
+                findBounds();
 	}
+        
+        private void findBounds() {
+            int x,y,t;
+            for(nil((x = center.i)+(t = center.j));map.get(x,t).isOnscreenLegacy();x++);
+            for(nil((t = center.i)+(y = center.j));map.get(t,y).isOnscreenLegacy();y++);
+            x += FUDGE; y += FUDGE;
+            boundX[1] = x; boundY[1] = y;
+            boundX[0] = 2*center.i - x; boundY[0] = 2*center.j - y;
+        }
 	
 	public void renderMap()
 	{	
-            // /*
 		Iterator<Tile> i = map.iterator();
 		while(i.hasNext()){
 			Tile t = i.next();
@@ -103,12 +119,15 @@ public class Map
 		private final int y1, y2, y3, y4;
                 private final float[] xs = {0,0,0,0}, ys = {0,0,0,0};
 		public final int x, y, h, w;
+                public final int i, j;
 		private float red = 0, green = 0, blue = 0;
+                private boolean onscreen = false;
 		
-		public Tile(final int _x, final int _y, final int _w, final int _h, final float[] colors)
+		public Tile(final int _x, final int _y, final int _i, final int _j, final int _w, final int _h, final float[] colors)
 		{
 			x = _x; y = _y; h = _h; w = _w;
-
+                        i = _i; j = _j;
+                        
 			x1 = x; 
 			y1 = y+_h/2;			
 			x2 = x+w/2; 
@@ -128,33 +147,15 @@ public class Map
 		
 		public boolean isOnscreenLegacy()
 		{
-			if(((x*zoomFactor + centerX)>-TILE_WIDTH*zoomFactor/2)
-				&&((x*zoomFactor + centerX)< Display.getWidth()+TILE_WIDTH*zoomFactor/2)
-				&&((y*zoomFactor + centerY) < Display.getHeight()+TILE_HEIGHT*zoomFactor/2)
-				&&((x1*zoomFactor + centerY) > -TILE_HEIGHT*zoomFactor/2))
-			{
-				return true;
-			}
-			return false;
+                    return (((x*zoomFactor + centerX)>-TILE_WIDTH*zoomFactor/2)
+                            &&((x*zoomFactor + centerX)< Display.getWidth()+TILE_WIDTH*zoomFactor/2)
+                            &&((y*zoomFactor + centerY) < Display.getHeight()+TILE_HEIGHT*zoomFactor/2)
+                            &&((x1*zoomFactor + centerY) > -TILE_HEIGHT*zoomFactor/2));
 		}
                 
                 public boolean isOnscreenNew() {
-                    if(this == center) return true;
-                    return distanceFrom(center) < 2*MAP_RADIUS;
-                }
-                
-                protected float distanceFrom(Tile t) {
-                    if(t == null) return Float.MAX_VALUE;
-                    float dist = 0;
-                    if(t.x4 > this.x2)
-                        dist += t.x4 - this.x2;
-                    else if (t.x2 > this.x4)
-                        dist += t.x2 - this.x4;
-                    if(t.y1 > this.y3)
-                        dist += t.y1 - this.y3;
-                    else if (t.y3 > this.y1)
-                        dist += t.y3 - this.y1;
-                    return dist;
+                    return i >= boundX[0] && j >= boundY[0]
+                        && i <= boundX[1] && j <= boundY[1];
                 }
                 
                 public void updatePoints () {

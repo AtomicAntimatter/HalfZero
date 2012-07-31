@@ -21,4 +21,7 @@ public abstract class Functions {
       }
       return c;
     }
+    public static <T> void nil(T t) {
+        //do magic here.
+    }
 }

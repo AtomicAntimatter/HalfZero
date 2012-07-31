@@ -116,10 +116,10 @@ public class HalfZero
 		}
 		
 		gameMap.moveMap(
-				(Keyboard.isKeyDown(Keyboard.KEY_LEFT)?delta/10:0)
-				+ (Keyboard.isKeyDown(Keyboard.KEY_RIGHT)?-delta/10:0),
-				(Keyboard.isKeyDown(Keyboard.KEY_UP)?-delta/10:0) 
-				+ (Keyboard.isKeyDown(Keyboard.KEY_DOWN)?delta/10:0));
+				(Keyboard.isKeyDown(Keyboard.KEY_LEFT)?delta/2:0)
+				+ (Keyboard.isKeyDown(Keyboard.KEY_RIGHT)?-delta/2:0),
+				(Keyboard.isKeyDown(Keyboard.KEY_UP)?-delta/2:0) 
+				+ (Keyboard.isKeyDown(Keyboard.KEY_DOWN)?delta/2:0));
 	}
 	
 	private static int getDelta() 
