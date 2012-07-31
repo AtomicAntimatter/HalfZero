@@ -253,10 +253,10 @@ public class Map
                 NNE(N, NE),
                 ENE(E, NE),
                 ESE(E, SE),
-                SSE(S, SE),
-                SSW(S, SW),
-                WSW(W, SW),
-                WNW(W, NW);
+                SSE(NNW),
+                SSW(NNE),
+                WSW(ENE),
+                WNW(ESE);
                 
                 private final int dx, dy;
 
