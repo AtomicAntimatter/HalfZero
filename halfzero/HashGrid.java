@@ -50,12 +50,19 @@ public class HashGrid <E extends Serializable> implements Grid<E> {
 
     @Override
     public E get(int x, int y) {
-        Coordinate c = new Coordinate(x, y);
-        return map.get(c);
+        if(x < 0 || x >= w)
+            throw new ArrayIndexOutOfBoundsException(x);
+        if(y < 0 || y >= h)
+            throw new ArrayIndexOutOfBoundsException(y);
+        return map.get(new Coordinate(x, y));
     }
 
     @Override
     public void set(int x, int y, E _val) {
+        if(x < 0 || x >= w)
+            throw new ArrayIndexOutOfBoundsException(x);
+        if(y < 0 || y >= h)
+            throw new ArrayIndexOutOfBoundsException(y);
         Coordinate c = new Coordinate(x, y);
         map.put(c, _val);
     }
