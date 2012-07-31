@@ -19,6 +19,7 @@ public class Map
         private Tile center;
 	private float zoomFactor = 1; 
 	private float centerX, centerY;
+        private final float cX, cY;
 	private java.util.Map<int[], Tile> tileMap = new HashMap();
         private Grid<Tile> map;
 	
@@ -27,8 +28,8 @@ public class Map
 		MAP_LENGTH = _MAP_LENGTH;
 		MAP_WIDTH = _MAP_WIDTH;
 		
-		centerX = Display.getWidth()/2 - TILE_WIDTH*(MAP_LENGTH+MAP_WIDTH)/4;
-		centerY = Display.getHeight()/2 - TILE_HEIGHT/2 - TILE_HEIGHT*(MAP_LENGTH - MAP_WIDTH)/4;
+		centerX = cX = Display.getWidth()/2 - TILE_WIDTH*(MAP_LENGTH+MAP_WIDTH)/4;
+		centerY = cY = Display.getHeight()/2 - TILE_HEIGHT/2 - TILE_HEIGHT*(MAP_LENGTH - MAP_WIDTH)/4;
                 
                 map = new HashGrid<Tile>(MAP_LENGTH, MAP_WIDTH);
 		
@@ -63,12 +64,12 @@ public class Map
 	public void moveMap(final float moveX, final float moveY)
 	{
 		if((moveX == 0)&&(moveY == 0)) return;
-		
+                
 		offsetX -= moveX;
 		offsetY -= moveY;
 		
-		centerX = Display.getWidth()/2 - zoomFactor*(TILE_WIDTH*(MAP_LENGTH+MAP_WIDTH)/4 + offsetX);
-		centerY = Display.getHeight()/2 - zoomFactor*(TILE_HEIGHT/2 + TILE_HEIGHT*(MAP_LENGTH - MAP_WIDTH)/4 + offsetY);
+		centerX = cX - zoomFactor*offsetX;
+		centerY = cY - zoomFactor*offsetY;
 
                 findBounds();
 	}
