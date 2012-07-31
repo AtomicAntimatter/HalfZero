@@ -236,6 +236,10 @@ public class Map
                     return co.y;
                 }
                 
+                public boolean hasNeighbor(Direction d) {
+                    return neighbor(d) != null;
+                }
+                
                 public Tile neighbor(Direction d) {
                     try {
                         return m.map.get(co.x + d.dx, co.y + d.dy);
