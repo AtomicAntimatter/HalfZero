@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package halfzero;
+package halfzero.util;
 
 import java.util.Iterator;
 
@@ -21,6 +21,7 @@ public interface Grid <E extends java.io.Serializable> extends java.io.Serializa
     E[][] toArray();
     
     E get(int x, int y);
+    E get(Coordinate co);
     void set(int x, int y, E _val);
     
     Grid<E> subGrid(int x0, int x1, int y0, int y1);

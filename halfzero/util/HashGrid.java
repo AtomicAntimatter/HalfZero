@@ -2,9 +2,9 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package halfzero;
+package halfzero.util;
 
-import halfzero.Grid.DimensionMismatchException;
+import halfzero.util.Grid.DimensionMismatchException;
 import java.io.Serializable;
 import java.util.Iterator;
 import java.util.Map.Entry;
@@ -55,6 +55,15 @@ public class HashGrid <E extends Serializable> implements Grid<E> {
         if(y < 0 || y >= h)
             throw new ArrayIndexOutOfBoundsException(y);
         return map.get(new Coordinate(x, y));
+    }
+    
+    @Override
+    public E get(Coordinate co) {
+        if(co.x < 0 || co.x >= w)
+            throw new ArrayIndexOutOfBoundsException(co.x);
+        if(co.y < 0 || co.y >= h)
+            throw new ArrayIndexOutOfBoundsException(co.y);
+        return map.get(co);
     }
 
     @Override
@@ -167,6 +176,11 @@ class SubGrid<E extends Serializable> implements Grid<E> {
         if (x < 0 || y < 0 || x >= w || y >= h)
             throw new ArrayIndexOutOfBoundsException();
         return backing.get(x0 + x, y0 + y);
+    }
+    
+    @Override
+    public E get(Coordinate co) {
+        return get(co.x,co.y); //TODO:fix
     }
 
     @Override

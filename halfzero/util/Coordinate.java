@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package halfzero;
+package halfzero.util;
 
 import java.io.Serializable;
 
@@ -10,7 +10,7 @@ import java.io.Serializable;
  *
  * @author harrison
  */
-public class Coordinate implements Serializable, Cloneable {
+public final class Coordinate implements Serializable, Cloneable {
     public final int x, y, h;
     
     public static long XB = 233l, YB = 241l, XM = 433494437l, YM = 2971215073l;
@@ -21,12 +21,12 @@ public class Coordinate implements Serializable, Cloneable {
     }
     
     @Override
-    public int hashCode() {  
+    public final int hashCode() {  
         return h;
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public final boolean equals(Object obj) {
         if (obj == null) {
             return false;
         }

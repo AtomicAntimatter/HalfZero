@@ -1,9 +1,10 @@
 package halfzero;
 
-import java.util.Arrays;
+import halfzero.util.Coordinate;
+import halfzero.util.Grid;
+import halfzero.util.HashGrid;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Map.Entry;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.GL11;
 
@@ -42,7 +43,7 @@ public class Map
 							
 				float[] colors = {(float)Math.random(), (float)Math.random(), (float)Math.random()};
 				//tileMap.put(new int[]{x, y}, new Tile(x, y, TILE_WIDTH, TILE_HEIGHT, colors));
-                                map.set(i, j, new Tile(x, y, i, j, TILE_WIDTH, TILE_HEIGHT, colors));
+                                map.set(i, j, new Tile(this, x, y, i, j, TILE_WIDTH, TILE_HEIGHT, colors));
 			}
 		}
                 
@@ -65,19 +66,19 @@ public class Map
 	{
 		if((moveX == 0)&&(moveY == 0)) return;
                 
-                if(center.i <= 0) {
+                if(center.i() <= 0) {
                     moveX = moveX<0?moveX:0;
                     moveY = moveY>0?moveY:0;
                 }
-                else if(center.i >= map.width()-1) {
+                else if(center.i() >= map.width()-1) {
                     moveX = moveX>0?moveX:0;
                     moveY = moveY<0?moveY:0;
                 }
-                if(center.j <= 0) {
+                if(center.j() <= 0) {
                     moveX = moveX<0?moveX:0;
                     moveY = moveY<0?moveY:0;
                 }
-                else if(center.j >= map.height()-1) {
+                else if(center.j() >= map.height()-1) {
                     moveX = moveX>0?moveX:0;
                     moveY = moveY>0?moveY:0;
                 }
@@ -95,19 +96,19 @@ public class Map
             if(center == null) return;
             int x=-1,y=-1, t=-1;
             try {
-                for (nil((x = center.i) + (t = center.j)); map.get(x, t).isOnscreenLegacy(); x++);
-                for (nil((t = center.i) + (y = center.j)); map.get(t, y).isOnscreenLegacy(); y++);
+                for (nil((x = center.i()) + (t = center.j())); map.get(x, t).isOnscreenLegacy(); x++);
+                for (nil((t = center.i()) + (y = center.j())); map.get(t, y).isOnscreenLegacy(); y++);
             } catch (ArrayIndexOutOfBoundsException e) {
                 e.printStackTrace();
             }
-            width = x - center.i + FUDGE;
-            height = y - center.j + FUDGE;
+            width = x - center.i() + FUDGE;
+            height = y - center.j() + FUDGE;
             findBounds();
         }
         
         private void findBounds() {
-            boundX[1] = width + center.i; boundY[1] = height + center.j;
-            boundX[0] = center.i - width; boundY[0] = center.j - height;            
+            boundX[1] = width + center.i(); boundY[1] = height + center.j();
+            boundX[0] = center.i() - width; boundY[0] = center.j() - height;            
         }
         
 	public void renderMap()
@@ -120,7 +121,7 @@ public class Map
                             t.updatePoints();
                             t.renderTile();
 			}
-		}            
+		}   
 	}
 
 	public void renderCrosshair()
@@ -141,20 +142,22 @@ public class Map
 		GL11.glPopMatrix();
 	}
 	
-	public class Tile implements java.io.Serializable
+	public static class Tile implements java.io.Serializable
 	{
 		private final int x1, x2, x3, x4;
 		private final int y1, y2, y3, y4;
                 private final float[] xs = {0,0,0,0}, ys = {0,0,0,0};
 		public final int x, y, h, w;
-                public final int i, j;
+                public final Coordinate co;
 		private float red = 0, green = 0, blue = 0;
                 private boolean onscreen = false;
-		
-		public Tile(final int _x, final int _y, final int _i, final int _j, final int _w, final int _h, final float[] colors)
+		private final Map m;
+                
+		public Tile(Map _m, final int _x, final int _y, final int _i, final int _j, final int _w, final int _h, final float[] colors)
 		{
-			x = _x; y = _y; h = _h; w = _w;
-                        i = _i; j = _j;
+			m = _m;
+                        x = _x; y = _y; h = _h; w = _w;
+                        co = new Coordinate(_i, _j);
                         
 			x1 = x; 
 			y1 = y+_h/2;			
@@ -175,33 +178,43 @@ public class Map
 		
 		public boolean isOnscreenLegacy()
 		{
-                    return (((x*zoomFactor + centerX)>-TILE_WIDTH*zoomFactor/2)
-                            &&((x*zoomFactor + centerX)< Display.getWidth()+TILE_WIDTH*zoomFactor/2)
-                            &&((y*zoomFactor + centerY) < Display.getHeight()+TILE_HEIGHT*zoomFactor/2)
-                            &&((x1*zoomFactor + centerY) > -TILE_HEIGHT*zoomFactor/2));
+                    final float zf = m.zoomFactor,
+                                cx = m.centerX,
+                                cy = m.centerY;
+                    return (((x*zf + cx)>-m.TILE_WIDTH*zf/2)
+                            &&((x*zf + cx)< Display.getWidth()+m.TILE_WIDTH*zf/2)
+                            &&((y*zf + cy) < Display.getHeight()+m.TILE_HEIGHT*zf/2)
+                            &&((x1*zf + cy) > -m.TILE_HEIGHT*zf/2));
 		}
                 
                 public boolean isOnscreenNew() {
-                    return i >= boundX[0] && j >= boundY[0]
-                        && i <= boundX[1] && j <= boundY[1];
+                    return co.x >= m.boundX[0] && co.y >= m.boundY[0]
+                        && co.x <= m.boundX[1] && co.y <= m.boundY[1];
+                }
+                
+                private float transX(final float x) {
+                    return m.zoomFactor * x + m.centerX;
+                } 
+                private float transY(final float y) {
+                    return m.zoomFactor * y + m.centerY;
                 }
                 
                 public void updatePoints () {
-                    xs[0] = x1 * zoomFactor + centerX;
-                    ys[0] = y1 * zoomFactor + centerY;
-                    xs[1] = x2 * zoomFactor + centerX;
-                    ys[1] = y2 * zoomFactor + centerY;
-                    xs[2] = x3 * zoomFactor + centerX;
-                    ys[2] = y3 * zoomFactor + centerY;
-                    xs[3] = x4 * zoomFactor + centerX;
-                    ys[3] = y4 * zoomFactor + centerY;
+                    xs[0] = transX(x1);
+                    ys[0] = transY(y1);
+                    xs[1] = transX(x2);
+                    ys[1] = transY(y2);
+                    xs[2] = transX(x3);
+                    ys[2] = transY(y3);
+                    xs[3] = transX(x4);
+                    ys[3] = transY(y4);
                     if(pnpoly(4, xs, ys, Display.getWidth()/2, Display.getHeight()/2))
-                        center = this;
+                        m.center = this;
                 }
 		
 		public void renderTile()
                 {     
-                    if(center == this)
+                    if(m.center == this)
                         GL11.glColor3f(1, 1, 1);
                     else GL11.glColor3f(red,green,blue);
                     
@@ -215,5 +228,48 @@ public class Map
 			GL11.glPopMatrix();
                         
 		}
-	}
+                
+                public int i() {
+                    return co.x;
+                }
+                public int j() {
+                    return co.y;
+                }
+                
+                public Tile neighbor(Direction d) {
+                    return m.map.get(co.x+d.dx, co.y+d.dy);
+                }
+                
+            public enum Direction {
+                N (0, 1),
+                E (1, 0),
+                S (N),
+                W (E),
+                NE(N, E),
+                SW(S, W),
+                NW(N, W),
+                SE(S, E),
+                NNW(N, NW),
+                NNE(N, NE),
+                ENE(E, NE),
+                ESE(E, SE),
+                SSE(S, SE),
+                SSW(S, SW),
+                WSW(W, SW),
+                WNW(W, NW);
+                
+                private final int dx, dy;
+
+                private Direction(final int _dx, final int _dy) {
+                    dx = _dx; dy = _dy;
+                }
+                private Direction(Direction d) {
+                    dx = -d.dx; dy = -d.dy;
+                }
+                private Direction(Direction d, Direction e) {
+                    dx = d.dx+e.dx; dy = d.dy+e.dy;
+                }
+            }
+        }
+        
 }
