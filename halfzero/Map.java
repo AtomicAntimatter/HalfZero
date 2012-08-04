@@ -1,9 +1,10 @@
 package halfzero;
 
-import java.util.HashMap;
-import java.util.Iterator;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.GL11;
+import util.Interval;
+import util.Interval2D;
+import util.QuadTree;
 
 public class Map
 {
@@ -12,7 +13,7 @@ public class Map
 	private int offsetX = 0, offsetY = 0;
 	private float zoomFactor = 1; 
 	private float centerX, centerY;
-	private java.util.Map<int[], Tile> tileMap = new HashMap();
+	private QuadTree<Integer, Tile> qa = new QuadTree();
 	
 	public Map(final int _MAP_LENGTH, final int _MAP_WIDTH)
 	{
@@ -30,7 +31,7 @@ public class Map
 				int y = ((j-i)*TILE_HEIGHT/2);
 							
 				float[] colors = {(float)Math.random(), (float)Math.random(), (float)Math.random()};
-				tileMap.put(new int[]{x, y}, new Tile(x, y, TILE_WIDTH, TILE_HEIGHT, colors));
+				qa.insert(x, y, new Tile(x, y, TILE_WIDTH, TILE_HEIGHT, colors));
 			}
 		}	
 	}
@@ -61,13 +62,11 @@ public class Map
 	}
 	
 	public void renderMap()
-	{		
-		Iterator i = tileMap.entrySet().iterator();
-		while(i.hasNext())
-		{
-			java.util.Map.Entry<int[], Tile> pair = (java.util.Map.Entry<int[], Tile>)i.next();
-			pair.getValue().renderTile();
-		}
+	{			
+		Interval<Integer> intX = new Interval<>((int)(-centerX/zoomFactor), (int)((Display.getWidth()-centerX)/zoomFactor));
+		Interval<Integer> intY = new Interval<>((int)(-centerY/zoomFactor), (int)((Display.getHeight()-centerY)/zoomFactor));
+		Interval2D<Integer> rect = new Interval2D<>(intX, intY);
+		qa.query2D(rect);
 	}
 
 	public void renderCrosshair()
@@ -109,6 +108,14 @@ public class Map
 			y4 = y;
 			
 			red = colors[0]; green = colors[1]; blue = colors[2];
+		}
+		
+		public boolean isOnScreen()
+		{
+			return (((x*zoomFactor + centerX)>-TILE_WIDTH*zoomFactor/2)
+				&&((x*zoomFactor + centerX)< Display.getWidth()+TILE_WIDTH*zoomFactor/2)
+				&&((y*zoomFactor + centerY) < Display.getHeight()+TILE_HEIGHT*zoomFactor/2)
+				&&((y*zoomFactor + centerY) > -TILE_HEIGHT*zoomFactor/2));
 		}
 		
 		public void renderTile()
