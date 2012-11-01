@@ -1,5 +1,6 @@
 package halfzero;
 
+import java.util.HashMap;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.GL11;
 import util.Interval;
@@ -10,10 +11,12 @@ public class Map
 {
 	private final int TILE_HEIGHT = 38, TILE_WIDTH = 76;
 	private final int MAP_LENGTH, MAP_WIDTH; 
+	private final float MAX_ZOOM_IN = 4, MAX_ZOOM_OUT = 0.2f;
 	private int offsetX = 0, offsetY = 0;
 	private float zoomFactor = 1; 
 	private float centerX, centerY;
 	private QuadTree<Integer, Tile> qa = new QuadTree();
+	private HashMap<int[], Tile> map = new HashMap();
 	
 	public Map(final int _MAP_LENGTH, final int _MAP_WIDTH)
 	{
@@ -32,6 +35,7 @@ public class Map
 							
 				float[] colors = {(float)Math.random(), (float)Math.random(), (float)Math.random()};
 				qa.insert(x, y, new Tile(x, y, TILE_WIDTH, TILE_HEIGHT, colors));
+				//map.put(new int[]{x,y}, new Tile(x, y, TILE_WIDTH, TILE_HEIGHT, colors));
 			}
 		}	
 	}
@@ -40,11 +44,11 @@ public class Map
 	{
 		if(in)
 		{
-			zoomFactor += 0.001f*delta;
+			zoomFactor = Math.min(zoomFactor + 0.001f*delta, MAX_ZOOM_IN);
 		}
 		else
 		{
-			zoomFactor -= 0.001f*delta;
+			zoomFactor = Math.max(zoomFactor - 0.001f*delta, MAX_ZOOM_OUT);
 		}	
 		centerX = Display.getWidth()/2 - zoomFactor*(TILE_WIDTH*(MAP_LENGTH+MAP_WIDTH)/4 + offsetX);
 		centerY = Display.getHeight()/2 - zoomFactor*(TILE_HEIGHT/2 + TILE_HEIGHT*(MAP_LENGTH - MAP_WIDTH)/4 + offsetY);
@@ -58,7 +62,7 @@ public class Map
 		offsetY -= moveY;
 		
 		centerX = Display.getWidth()/2 - zoomFactor*(TILE_WIDTH*(MAP_LENGTH+MAP_WIDTH)/4 + offsetX);
-		centerY = Display.getHeight()/2 - zoomFactor*(TILE_HEIGHT/2 + TILE_HEIGHT*(MAP_LENGTH - MAP_WIDTH)/4 + offsetY);
+		centerY = Display.getHeight()/2 - zoomFactor*(TILE_HEIGHT*(MAP_LENGTH - MAP_WIDTH)/4 + offsetY);
 	}
 	
 	public void renderMap()
@@ -67,6 +71,14 @@ public class Map
 		Interval<Integer> intY = new Interval<>((int)(-centerY/zoomFactor), (int)((Display.getHeight()-centerY)/zoomFactor));
 		Interval2D<Integer> rect = new Interval2D<>(intX, intY);
 		qa.query2D(rect);
+		/*
+		for(int i = (int)(-centerX/zoomFactor); i < (int)((Display.getWidth()-centerX)/zoomFactor); i+=TILE_WIDTH)
+		{
+			for(int j = (int)(-centerY/zoomFactor); i < (int)((Display.getHeight()-centerY)/zoomFactor); j+=TILE_HEIGHT)
+			{
+			
+			}
+		}*/
 	}
 
 	public void renderCrosshair()
